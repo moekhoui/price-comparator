@@ -6,6 +6,9 @@ const dbConfig = {
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'price_comparator',
   port: parseInt(process.env.DB_PORT || '3306'),
+  ssl: {
+    rejectUnauthorized: false
+  },
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -22,6 +25,9 @@ export async function initializeDatabase() {
       user: dbConfig.user,
       password: dbConfig.password,
       port: dbConfig.port,
+      ssl: {
+        rejectUnauthorized: false
+      },
     });
 
     await connection.execute(`CREATE DATABASE IF NOT EXISTS ${dbConfig.database}`);
