@@ -118,7 +118,7 @@ async function createTables() {
 }
 
 async function createSuperAdmin() {
-  const bcrypt = require('bcryptjs');
+  const bcrypt = await import('bcryptjs');
   const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || 'admin123';
   const hashedPassword = await bcrypt.hash(superAdminPassword, 12);
 
