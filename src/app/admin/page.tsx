@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Users,
@@ -26,72 +26,42 @@ interface User {
   updated_at: string;
 }
 
-interface Stats {
-  totalUsers: number;
-  totalSearches: number;
-  totalBookmarks: number;
-  totalProducts: number;
-}
-
 export default function AdminDashboard() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [stats, setStats] = useState<Stats>({
-    totalUsers: 0,
-    totalSearches: 0,
-    totalBookmarks: 0,
-    totalProducts: 0
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [showCreateUser, setShowCreateUser] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      // Fetch users (mock data for demo)
-      const mockUsers: User[] = [
-        {
-          id: 1,
-          username: 'superadmin',
-          email: 'admin@pricecomparator.com',
-          role: 'super_admin',
-          created_at: '2024-01-01T00:00:00Z',
-          updated_at: '2024-01-01T00:00:00Z'
-        },
-        {
-          id: 2,
-          username: 'john_doe',
-          email: 'john@example.com',
-          role: 'user',
-          created_at: '2024-01-15T10:30:00Z',
-          updated_at: '2024-01-15T10:30:00Z'
-        },
-        {
-          id: 3,
-          username: 'jane_smith',
-          email: 'jane@example.com',
-          role: 'admin',
-          created_at: '2024-01-20T14:45:00Z',
-          updated_at: '2024-01-20T14:45:00Z'
-        }
-      ];
-
-      setUsers(mockUsers);
-      setStats({
-        totalUsers: mockUsers.length,
-        totalSearches: 1250,
-        totalBookmarks: 890,
-        totalProducts: 450
-      });
-    } catch (error) {
-      toast.error('Failed to load data');
-    } finally {
-      setIsLoading(false);
+  // Mock data for demo
+  const users: User[] = [
+    {
+      id: 1,
+      username: 'superadmin',
+      email: 'admin@pricecomparator.com',
+      role: 'super_admin',
+      created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-01T00:00:00Z'
+    },
+    {
+      id: 2,
+      username: 'john_doe',
+      email: 'john@example.com',
+      role: 'user',
+      created_at: '2024-01-15T10:30:00Z',
+      updated_at: '2024-01-15T10:30:00Z'
+    },
+    {
+      id: 3,
+      username: 'jane_smith',
+      email: 'jane@example.com',
+      role: 'admin',
+      created_at: '2024-01-20T14:45:00Z',
+      updated_at: '2024-01-20T14:45:00Z'
     }
+  ];
+
+  const stats = {
+    totalUsers: users.length,
+    totalSearches: 1250,
+    totalBookmarks: 890,
+    totalProducts: 450
   };
 
   const filteredUsers = users.filter(user =>
@@ -112,40 +82,19 @@ export default function AdminDashboard() {
 
   const handleDeleteUser = async (userId: number) => {
     if (confirm('Are you sure you want to delete this user?')) {
-      try {
-        // In real app, call API to delete user
-        setUsers(users.filter(user => user.id !== userId));
-        toast.success('User deleted successfully');
-      } catch (error) {
-        toast.error('Failed to delete user');
-      }
+      toast.success('User deleted successfully');
     }
   };
 
-  const handleCreateUser = async (userData: any) => {
+  const handleInitializeDB = async () => {
     try {
-      // In real app, call API to create user
-      const newUser: User = {
-        id: Date.now(),
-        ...userData,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      setUsers([...users, newUser]);
-      setShowCreateUser(false);
-      toast.success('User created successfully');
+      const response = await fetch('/api/init-db', { method: 'POST' });
+      const result = await response.json();
+      toast.success(result.message || 'Database initialized successfully');
     } catch (error) {
-      toast.error('Failed to create user');
+      toast.error('Failed to initialize database');
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -161,14 +110,11 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setShowCreateUser(true)}
-                className="btn btn-primary btn-md flex items-center"
-              >
+              <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
                 <Plus className="h-4 w-4 mr-2" />
                 Add User
               </button>
-              <a href="/" className="btn btn-outline btn-md">
+              <a href="/" className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
                 Back to App
               </a>
             </div>
@@ -267,7 +213,7 @@ export default function AdminDashboard() {
                   placeholder="Search users..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="input pl-10 w-64"
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </div>
@@ -347,8 +293,8 @@ export default function AdminDashboard() {
             </div>
             <p className="text-gray-600 mb-4">Initialize database and create tables</p>
             <button
-              onClick={() => fetch('/api/init-db', { method: 'POST' })}
-              className="btn btn-primary btn-sm"
+              onClick={handleInitializeDB}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
             >
               Initialize DB
             </button>
@@ -360,7 +306,7 @@ export default function AdminDashboard() {
               <h4 className="text-lg font-semibold text-gray-900">Analytics</h4>
             </div>
             <p className="text-gray-600 mb-4">View detailed analytics and reports</p>
-            <button className="btn btn-outline btn-sm">
+            <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
               View Analytics
             </button>
           </div>
@@ -371,7 +317,7 @@ export default function AdminDashboard() {
               <h4 className="text-lg font-semibold text-gray-900">Settings</h4>
             </div>
             <p className="text-gray-600 mb-4">Configure system settings</p>
-            <button className="btn btn-outline btn-sm">
+            <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
               Open Settings
             </button>
           </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Search, 
@@ -41,6 +41,7 @@ export default function Home() {
     
     setIsLoading(true);
     try {
+      // Simulate API call with mock data
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       const mockResults: SearchResult[] = [
@@ -152,13 +153,13 @@ export default function Home() {
             </motion.div>
 
             <nav className="hidden md:flex items-center space-x-6">
-              <a href="/bookmarks" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
+              <a href="/admin" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
                 <Bookmark className="h-5 w-5 mr-1" />
-                Bookmarks
+                Admin
               </a>
-              <a href="/history" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
+              <a href="/api/health" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
                 <History className="h-5 w-5 mr-1" />
-                History
+                Health
               </a>
             </nav>
           </div>
@@ -201,7 +202,7 @@ export default function Home() {
                 <button
                   onClick={() => handleSearch(searchQuery)}
                   disabled={isLoading || !searchQuery.trim()}
-                  className="btn btn-primary btn-lg px-6 rounded-xl"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-medium transition-colors disabled:opacity-50"
                 >
                   {isLoading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -245,7 +246,7 @@ export default function Home() {
               {searchResults.map((item, index) => (
                 <motion.div
                   key={item.id}
-                  className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                  className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -276,7 +277,7 @@ export default function Home() {
                     ))}
                   </div>
 
-                  <h4 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                  <h4 className="font-semibold text-gray-900 mb-2">
                     {item.name}
                   </h4>
 
@@ -315,15 +316,13 @@ export default function Home() {
                   <div className="flex space-x-2">
                     <a
                       href={item.url}
-                      className="flex-1 btn btn-primary btn-md flex items-center justify-center"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-center font-medium transition-colors flex items-center justify-center"
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
                       Buy Now
                       <ExternalLink className="h-3 w-3 ml-1" />
                     </a>
-                    <button className="btn btn-outline btn-md">
+                    <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
                       Compare
                     </button>
                   </div>
@@ -361,6 +360,53 @@ export default function Home() {
           </motion.div>
         )}
       </main>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <TrendingUp className="h-6 w-6 text-blue-400" />
+                <span className="text-xl font-bold">PriceComparator Pro</span>
+              </div>
+              <p className="text-gray-400">
+                Find the best deals with our AI-powered price comparison platform.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Features</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li>AI-Powered Search</li>
+                <li>Price Tracking</li>
+                <li>Smart Bookmarks</li>
+                <li>Price Alerts</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Support</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li>Help Center</li>
+                <li>Contact Us</li>
+                <li>API Documentation</li>
+                <li>Status Page</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Company</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li>About Us</li>
+                <li>Privacy Policy</li>
+                <li>Terms of Service</li>
+                <li>Careers</li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 PriceComparator Pro. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
