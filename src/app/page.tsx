@@ -139,15 +139,15 @@ export default function Home() {
         {/* Hero Section */}
         <div className="text-center mb-16 animate-fade-in">
           <div className="inline-flex items-center px-4 py-2 bg-orange-100 rounded-full text-orange-700 font-medium text-sm mb-6">
-            🌍 Search 40+ Global E-commerce Sites
+            🔍 Real-Time Web Search • Live Data
           </div>
 
           <h2 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
             Find the <span className="text-orange-gradient">Best Deals</span>
           </h2>
           <p className="text-xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
-            Search the entire web with AI to compare wholesale and retail prices across global markets. 
-            Find the best deals from 40+ e-commerce sites including wholesale suppliers and B2B platforms.
+            Search real websites like Google does! Get live prices from Amazon, eBay, Walmart, Best Buy, Alibaba, and 15+ major e-commerce sites. 
+            Real products, real prices, real availability.
           </p>
 
           {/* Search Bar */}
@@ -174,12 +174,12 @@ export default function Home() {
                   {isLoading ? (
                     <>
                       <Loader2 className="h-5 w-5 animate-spin" />
-                      Searching...
+                      Searching Real Sites...
                     </>
                   ) : (
                     <>
                       <Search className="h-5 w-5" />
-                      Search Web
+                      Search Real Web
                     </>
                   )}
                 </button>
@@ -212,10 +212,10 @@ export default function Home() {
                 <Loader2 className="h-10 w-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                AI is searching global markets...
+                🔍 Searching real websites...
               </h3>
               <p className="text-gray-600 text-lg">
-                Analyzing product references across 40+ e-commerce sites including wholesale suppliers, B2B platforms, and international markets.
+                Scraping live data from Amazon, eBay, Walmart, Best Buy, Alibaba, and 15+ other major e-commerce sites for real product prices and availability.
               </p>
             </div>
           </div>
@@ -226,10 +226,10 @@ export default function Home() {
           <div className="space-y-8 animate-slide-up">
             <div className="flex items-center justify-between">
               <h3 className="text-3xl font-bold text-gray-900">
-                Search Results ({searchResults.length})
+                🔍 Real Search Results ({searchResults.length})
               </h3>
               <div className="flex items-center gap-2 text-orange-600 font-medium">
-                💡 Results sorted from lowest to highest
+                💡 Live data from real websites • Sorted by price
               </div>
             </div>
 
@@ -357,10 +357,10 @@ export default function Home() {
                 <Search className="h-12 w-12 text-orange-500" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Start Your AI-Powered Search
+                Start Your Real Web Search
               </h3>
               <p className="text-gray-600 text-lg mb-8">
-                Enter a product name, model, or reference to search the entire web and find the best wholesale and retail prices.
+                Enter a product name, model, or reference to search real websites and find actual prices from major e-commerce sites.
               </p>
             </div>
           </div>
