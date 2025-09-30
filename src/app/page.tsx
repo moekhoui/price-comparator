@@ -241,32 +241,28 @@ export default function Home() {
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <div className="relative">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-48 object-cover rounded-xl mb-4"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x200/FF6B35/FFFFFF?text=Product+Image';
-                      }}
-                    />
-                    <button
-                      onClick={() => toggleBookmark(item.id)}
-                      className={`absolute top-3 right-3 p-2 rounded-full transition-colors ${
-                        bookmarkedItems.has(item.id)
-                          ? 'bg-orange-500 text-white'
-                          : 'bg-white/90 text-gray-600 hover:bg-orange-500 hover:text-white'
-                      }`}
-                    >
-                      <Heart className="h-5 w-5" />
-                    </button>
-                    {item.badges.map((badge, badgeIndex) => (
-                      <span
-                        key={badgeIndex}
-                        className="absolute top-3 left-3 bg-orange-gradient text-white px-3 py-1 rounded-full text-xs font-semibold"
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex flex-wrap gap-2">
+                        {item.badges.map((badge, badgeIndex) => (
+                          <span
+                            key={badgeIndex}
+                            className="bg-orange-gradient text-white px-3 py-1 rounded-full text-xs font-semibold"
+                          >
+                            {badge}
+                          </span>
+                        ))}
+                      </div>
+                      <button
+                        onClick={() => toggleBookmark(item.id)}
+                        className={`p-2 rounded-full transition-colors ${
+                          bookmarkedItems.has(item.id)
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-orange-500 hover:text-white'
+                        }`}
                       >
-                        {badge}
-                      </span>
-                    ))}
+                        <Heart className="h-5 w-5" />
+                      </button>
+                    </div>
                   </div>
 
                   <h4 className="font-bold text-gray-900 mb-3 text-lg line-clamp-2">

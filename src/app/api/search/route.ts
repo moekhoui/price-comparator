@@ -159,8 +159,8 @@ async function generateDynamicSiteResults(site: string, query: string, productIn
     // Generate completely dynamic product name
     const productName = generateCompletelyDynamicProductName(productInfo, query, originalQuery, i);
     
-    // Generate dynamic product image based on query
-    const productImage = generateDynamicProductImage(query, productInfo, i, site);
+    // No images - just text results
+    const productImage = null;
     
     // Generate dynamic product ID
     const productId = generateDynamicProductId(query, i, site);
@@ -246,48 +246,7 @@ function generateCompletelyDynamicProductName(productInfo: any, query: string, o
   return name.trim();
 }
 
-function generateDynamicProductImage(query: string, productInfo: any, index: number, site: string): string {
-  // Create a unique image URL based on the query and parameters
-  const queryHash = query.split('').reduce((a, b) => {
-    a = ((a << 5) - a) + b.charCodeAt(0);
-    return a & a;
-  }, 0);
-  
-  const siteHash = site.split('').reduce((a, b) => {
-    a = ((a << 5) - a) + b.charCodeAt(0);
-    return a & a;
-  }, 0);
-  
-  // Use the hash to create a unique image selection
-  const imageIndex = Math.abs(queryHash + siteHash + index) % 1000;
-  
-  // Generate dynamic image URL based on product category and query
-  const category = productInfo.category || 'electronics';
-  const productType = productInfo.productType || 'product';
-  
-  // Create a more dynamic image URL
-  const imageParams = new URLSearchParams({
-    w: '400',
-    h: '300',
-    fit: 'crop',
-    auto: 'format',
-    q: '80',
-    seed: imageIndex.toString()
-  });
-  
-  // Use different image sources based on category
-  if (category.toLowerCase().includes('phone') || query.toLowerCase().includes('gigaset')) {
-    return `https://picsum.photos/400/300?random=${imageIndex}&category=technology`;
-  } else if (category.toLowerCase().includes('laptop') || category.toLowerCase().includes('computer')) {
-    return `https://picsum.photos/400/300?random=${imageIndex + 100}&category=technology`;
-  } else if (category.toLowerCase().includes('clothing') || category.toLowerCase().includes('fashion')) {
-    return `https://picsum.photos/400/300?random=${imageIndex + 200}&category=fashion`;
-  } else if (category.toLowerCase().includes('home') || category.toLowerCase().includes('furniture')) {
-    return `https://picsum.photos/400/300?random=${imageIndex + 300}&category=home`;
-  } else {
-    return `https://picsum.photos/400/300?random=${imageIndex + 400}`;
-  }
-}
+// No images - removed completely
 
 function generateDynamicProductId(query: string, index: number, site: string): string {
   // Create a unique product ID based on query, index, and site
@@ -308,32 +267,33 @@ function generateDynamicProductId(query: string, index: number, site: string): s
 }
 
 function generateDynamicProductUrl(site: string, query: string, productId: string): string {
-  // Generate completely dynamic URLs
-  const encodedQuery = encodeURIComponent(query.replace(/\s+/g, '-').toLowerCase());
-  const timestamp = Date.now();
+  // Generate REAL working URLs to actual search pages
+  const encodedQuery = encodeURIComponent(query);
   
-  const urlPatterns: { [key: string]: string } = {
-    'amazon.com': `https://amazon.com/dp/${productId}?ref=sr_1_${Math.floor(Math.random() * 10) + 1}`,
-    'ebay.com': `https://ebay.com/itm/${productId}/${encodedQuery}`,
-    'walmart.com': `https://walmart.com/ip/${encodedQuery}/${productId}`,
-    'bestbuy.com': `https://bestbuy.com/site/${encodedQuery}/${productId}`,
-    'target.com': `https://target.com/p/${encodedQuery}/${productId}`,
-    'newegg.com': `https://newegg.com/p/${productId}?Item=${productId}`,
-    'alibaba.com': `https://alibaba.com/product-detail/${encodedQuery}_${productId}`,
-    'aliexpress.com': `https://aliexpress.com/item/${productId}`,
-    'dhgate.com': `https://dhgate.com/product/${encodedQuery}/${productId}`,
-    'costco.com': `https://costco.com/${encodedQuery}/product.${productId}`,
-    'samsclub.com': `https://samsclub.com/p/${encodedQuery}/${productId}`,
-    'homedepot.com': `https://homedepot.com/p/${encodedQuery}/${productId}`,
-    'lowes.com': `https://lowes.com/pd/${encodedQuery}/${productId}`,
-    'macys.com': `https://macys.com/shop/product/${encodedQuery}/${productId}`,
-    'nordstrom.com': `https://nordstrom.com/s/${encodedQuery}/${productId}`,
-    'overstock.com': `https://overstock.com/Home-Garden/${encodedQuery}/${productId}`,
-    'rakuten.com': `https://rakuten.com/shop/${encodedQuery}/${productId}`,
-    'etsy.com': `https://etsy.com/listing/${productId}/${encodedQuery}`
+  const realUrlPatterns: { [key: string]: string } = {
+    'amazon.com': `https://amazon.com/s?k=${encodedQuery}`,
+    'ebay.com': `https://ebay.com/sch/i.html?_nkw=${encodedQuery}`,
+    'walmart.com': `https://walmart.com/search?q=${encodedQuery}`,
+    'bestbuy.com': `https://bestbuy.com/site/searchpage.jsp?st=${encodedQuery}`,
+    'target.com': `https://target.com/s?searchTerm=${encodedQuery}`,
+    'newegg.com': `https://newegg.com/p/pl?d=${encodedQuery}`,
+    'bhphotovideo.com': `https://bhphotovideo.com/c/search?q=${encodedQuery}`,
+    'adorama.com': `https://adorama.com/search?q=${encodedQuery}`,
+    'alibaba.com': `https://alibaba.com/trade/search?fsb=y&IndexArea=product_en&CatId=&SearchText=${encodedQuery}`,
+    'aliexpress.com': `https://aliexpress.com/wholesale?SearchText=${encodedQuery}`,
+    'dhgate.com': `https://dhgate.com/wholesale/search.do?act=search&sus=&searchkey=${encodedQuery}`,
+    'costco.com': `https://costco.com/CatalogSearch?dept=All&keyword=${encodedQuery}`,
+    'samsclub.com': `https://samsclub.com/s/${encodedQuery}`,
+    'homedepot.com': `https://homedepot.com/s/${encodedQuery}`,
+    'lowes.com': `https://lowes.com/search?searchTerm=${encodedQuery}`,
+    'macys.com': `https://macys.com/shop/search?keyword=${encodedQuery}`,
+    'nordstrom.com': `https://nordstrom.com/sr?keyword=${encodedQuery}`,
+    'overstock.com': `https://overstock.com/search?keywords=${encodedQuery}`,
+    'rakuten.com': `https://rakuten.com/search/${encodedQuery}`,
+    'etsy.com': `https://etsy.com/search?q=${encodedQuery}`
   };
   
-  return urlPatterns[site] || `https://${site}/search?q=${encodeURIComponent(query)}&id=${productId}&t=${timestamp}`;
+  return realUrlPatterns[site] || `https://${site}/search?q=${encodedQuery}`;
 }
 
 function generateDynamicBadges(isWholesale: boolean, query: string, productInfo: any): string[] {
