@@ -10,7 +10,9 @@ import {
   Star, 
   ShoppingCart, 
   ExternalLink,
-  Heart
+  Heart,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -28,6 +30,7 @@ interface SearchResult {
   shipping: number;
   inStock: boolean;
   badges: string[];
+  source: string;
 }
 
 export default function Home() {
@@ -35,65 +38,49 @@ export default function Home() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [bookmarkedItems, setBookmarkedItems] = useState<Set<string>>(new Set());
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   const handleSearch = async (query: string) => {
-    if (!query.trim()) return;
+    if (!query.trim()) {
+      toast.error('Please enter a product to search for');
+      return;
+    }
     
     setIsLoading(true);
+    setSearchError(null);
+    setSearchResults([]);
+    
     try {
-      // Simulate API call with mock data
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      toast.loading('🔍 Searching the web with AI...', { duration: 2000 });
       
-      const mockResults: SearchResult[] = [
-        {
-          id: '1',
-          name: `${query} - Premium Edition`,
-          price: 299.99,
-          originalPrice: 399.99,
-          discount: 25,
-          seller: 'Amazon',
-          url: '#',
-          image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=200&fit=crop',
-          rating: 4.8,
-          reviews: 1250,
-          shipping: 0,
-          inStock: true,
-          badges: ['Best Seller', 'Free Shipping']
+      const response = await fetch('/api/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        {
-          id: '2',
-          name: `${query} - Standard Version`,
-          price: 199.99,
-          seller: 'eBay',
-          url: '#',
-          image: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=300&h=200&fit=crop',
-          rating: 4.5,
-          reviews: 890,
-          shipping: 9.99,
-          inStock: true,
-          badges: ['Fast Shipping']
-        },
-        {
-          id: '3',
-          name: `${query} - Professional Model`,
-          price: 449.99,
-          originalPrice: 599.99,
-          discount: 25,
-          seller: 'Best Buy',
-          url: '#',
-          image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=200&fit=crop',
-          rating: 4.9,
-          reviews: 2100,
-          shipping: 0,
-          inStock: true,
-          badges: ['Premium', 'Warranty Included']
-        }
-      ];
+        body: JSON.stringify({ productReference: query }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Search failed');
+      }
+
+      const data = await response.json();
       
-      setSearchResults(mockResults);
-      toast.success(`Found ${mockResults.length} results for "${query}"`);
-    } catch (error) {
-      toast.error('Search failed. Please try again.');
+      if (data.results && data.results.length > 0) {
+        // Sort results by price (lowest to highest)
+        const sortedResults = data.results.sort((a: SearchResult, b: SearchResult) => a.price - b.price);
+        setSearchResults(sortedResults);
+        toast.success(`🎉 Found ${sortedResults.length} products for "${data.normalizedName}"`);
+      } else {
+        setSearchError(`No products found for "${query}". Try a different search term.`);
+        toast.error('No products found');
+      }
+    } catch (error: any) {
+      console.error('Search error:', error);
+      setSearchError(`Search failed: ${error.message}`);
+      toast.error(`Search failed: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -146,7 +133,7 @@ export default function Home() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  PriceComparator Pro
+                  Comparateur Ben Jeddou
                 </h1>
                 <p className="text-xs text-gray-500">AI-Powered Price Comparison</p>
               </div>
@@ -179,8 +166,8 @@ export default function Home() {
             Find the <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Best Deals</span>
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Compare prices across multiple retailers with our AI-powered search engine. 
-            Save money and discover amazing deals.
+            Search the entire web with AI to compare prices across multiple retailers. 
+            Get real-time results sorted by price from lowest to highest.
           </p>
 
           {/* Search Bar */}
@@ -191,7 +178,7 @@ export default function Home() {
               </div>
               <input
                 type="text"
-                placeholder="Search for products, brands, or categories..."
+                placeholder="Enter product name, model, or reference (e.g., iPhone 15, Samsung Galaxy S24, MacBook Pro M3)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
@@ -202,31 +189,87 @@ export default function Home() {
                 <button
                   onClick={() => handleSearch(searchQuery)}
                   disabled={isLoading || !searchQuery.trim()}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-medium transition-colors disabled:opacity-50"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
                 >
                   {isLoading ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Searching...
+                    </>
                   ) : (
-                    'Search'
+                    <>
+                      <Search className="h-5 w-5" />
+                      Search Web
+                    </>
                   )}
                 </button>
               </div>
             </div>
 
-            {/* Quick Filters */}
+            {/* Quick Search Examples */}
             <div className="flex flex-wrap justify-center gap-2 mt-4">
-              {['Electronics', 'Clothing', 'Home & Garden', 'Sports', 'Books'].map((category) => (
+              {['iPhone 15', 'Samsung Galaxy S24', 'MacBook Pro M3', 'PlayStation 5', 'Nike Air Max'].map((example) => (
                 <button
-                  key={category}
-                  onClick={() => handleSearch(category)}
+                  key={example}
+                  onClick={() => {
+                    setSearchQuery(example);
+                    handleSearch(example);
+                  }}
                   className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium transition-colors"
                 >
-                  {category}
+                  {example}
                 </button>
               ))}
             </div>
           </div>
         </motion.div>
+
+        {/* Loading State */}
+        {isLoading && (
+          <motion.div 
+            className="text-center py-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="max-w-md mx-auto">
+              <Loader2 className="h-16 w-16 text-blue-600 animate-spin mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                AI is searching the web...
+              </h3>
+              <p className="text-gray-600">
+                Analyzing product references and finding the best prices across multiple retailers.
+              </p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Error State */}
+        {searchError && (
+          <motion.div 
+            className="text-center py-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="max-w-md mx-auto">
+              <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Search Failed
+              </h3>
+              <p className="text-gray-600 mb-4">{searchError}</p>
+              <button
+                onClick={() => {
+                  setSearchError(null);
+                  setSearchResults([]);
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          </motion.div>
+        )}
 
         {/* Search Results */}
         {searchResults.length > 0 && (
@@ -238,8 +281,11 @@ export default function Home() {
           >
             <div className="flex items-center justify-between">
               <h3 className="text-2xl font-bold text-gray-900">
-                Search Results ({searchResults.length})
+                Search Results ({searchResults.length}) - Sorted by Price (Lowest to Highest)
               </h3>
+              <div className="text-sm text-gray-600">
+                💡 Results are automatically sorted by price
+              </div>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -256,6 +302,9 @@ export default function Home() {
                       src={item.image}
                       alt={item.name}
                       className="w-full h-48 object-cover rounded-lg mb-4"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x200/4F46E5/FFFFFF?text=Product+Image';
+                      }}
                     />
                     <button
                       onClick={() => toggleBookmark(item.id)}
@@ -277,7 +326,7 @@ export default function Home() {
                     ))}
                   </div>
 
-                  <h4 className="font-semibold text-gray-900 mb-2">
+                  <h4 className="font-semibold text-gray-900 mb-2 line-clamp-2">
                     {item.name}
                   </h4>
 
@@ -313,9 +362,15 @@ export default function Home() {
                     <span>{item.shipping === 0 ? 'Free Shipping' : `+${formatPrice(item.shipping)}`}</span>
                   </div>
 
+                  <div className="text-xs text-gray-500 mb-4">
+                    Source: {item.source}
+                  </div>
+
                   <div className="flex space-x-2">
                     <a
                       href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-center font-medium transition-colors flex items-center justify-center"
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
@@ -339,7 +394,7 @@ export default function Home() {
         )}
 
         {/* Empty State */}
-        {searchResults.length === 0 && !isLoading && (
+        {searchResults.length === 0 && !isLoading && !searchError && (
           <motion.div 
             className="text-center py-12"
             initial={{ opacity: 0 }}
@@ -351,10 +406,10 @@ export default function Home() {
                 <Search className="h-12 w-12 text-blue-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Start Your Search
+                Start Your AI-Powered Search
               </h3>
               <p className="text-gray-600 mb-6">
-                Enter a product name or browse our popular categories to find the best deals.
+                Enter a product name, model, or reference to search the entire web and find the best prices.
               </p>
             </div>
           </motion.div>
@@ -368,19 +423,19 @@ export default function Home() {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <TrendingUp className="h-6 w-6 text-blue-400" />
-                <span className="text-xl font-bold">PriceComparator Pro</span>
+                <span className="text-xl font-bold">Comparateur Ben Jeddou</span>
               </div>
               <p className="text-gray-400">
-                Find the best deals with our AI-powered price comparison platform.
+                AI-powered price comparison platform that searches the entire web to find the best deals.
               </p>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Features</h4>
               <ul className="space-y-2 text-gray-400">
-                <li>AI-Powered Search</li>
-                <li>Price Tracking</li>
-                <li>Smart Bookmarks</li>
-                <li>Price Alerts</li>
+                <li>AI-Powered Web Search</li>
+                <li>Real-time Price Comparison</li>
+                <li>Smart Price Sorting</li>
+                <li>Multi-retailer Results</li>
               </ul>
             </div>
             <div>
@@ -403,7 +458,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 PriceComparator Pro. All rights reserved.</p>
+            <p>&copy; 2024 Comparateur Ben Jeddou. All rights reserved.</p>
           </div>
         </div>
       </footer>
