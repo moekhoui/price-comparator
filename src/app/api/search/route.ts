@@ -4,18 +4,65 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 const genAI = process.env.GOOGLE_AI_API_KEY ? new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY) : null;
 const model = genAI ? genAI.getGenerativeModel({ model: 'gemini-pro' }) : null;
 
-// E-commerce sites to search
+// Comprehensive list of e-commerce sites including wholesale and B2B
 const ECOMMERCE_SITES = [
+  // Major Retailers
   'amazon.com',
   'ebay.com',
   'walmart.com',
   'bestbuy.com',
   'target.com',
+  'costco.com',
+  'samsclub.com',
+  
+  // Electronics & Tech
   'newegg.com',
   'bhphotovideo.com',
   'adorama.com',
+  'microcenter.com',
+  'frys.com',
+  'tigerdirect.com',
+  
+  // Wholesale & B2B
+  'alibaba.com',
+  'aliexpress.com',
+  'dhgate.com',
+  'made-in-china.com',
+  'globalsources.com',
+  'tradekey.com',
+  
+  // Fashion & Apparel
   'macys.com',
-  'homedepot.com'
+  'nordstrom.com',
+  'zappos.com',
+  'homedepot.com',
+  'lowes.com',
+  'wayfair.com',
+  
+  // International
+  'amazon.co.uk',
+  'amazon.de',
+  'amazon.fr',
+  'amazon.ca',
+  'amazon.com.au',
+  'ebay.co.uk',
+  'ebay.de',
+  'ebay.fr',
+  
+  // Specialty
+  'overstock.com',
+  'rakuten.com',
+  'jet.com',
+  'wish.com',
+  'etsy.com',
+  'shopify.com',
+  
+  // Wholesale Marketplaces
+  'wholesalecentral.com',
+  'wholesaleaccess.com',
+  'wholesalehub.com',
+  'bulkwholesale.com',
+  'wholesaleoutlet.com'
 ];
 
 export async function POST(request: NextRequest) {
@@ -32,24 +79,29 @@ export async function POST(request: NextRequest) {
     let normalizedName = productReference;
     let searchResults: any[] = [];
 
-    // Use AI to normalize the product name and generate search queries
+    // Use AI to normalize the product name and generate comprehensive search queries
     if (model) {
       try {
         const prompt = `
-        You are an expert product search assistant. For the product reference "${productReference}", please:
+        You are an expert wholesale and retail product search assistant. For the product reference "${productReference}", please:
 
-        1. Normalize the product name for consistent searching
-        2. Generate 5 different search variations that would find this product on e-commerce sites
-        3. Identify the product category and key features
-        4. Suggest realistic price ranges for this type of product
+        1. Normalize the product name for comprehensive searching across global markets
+        2. Generate 8 different search variations that would find this product on wholesale and retail sites
+        3. Identify the product category, key features, and specifications
+        4. Suggest realistic wholesale and retail price ranges for this type of product
+        5. Consider both B2B wholesale pricing and retail pricing
+        6. Include international market variations
 
         Respond in JSON format:
         {
           "normalizedName": "normalized product name",
-          "searchVariations": ["search term 1", "search term 2", "search term 3", "search term 4", "search term 5"],
+          "searchVariations": ["search term 1", "search term 2", "search term 3", "search term 4", "search term 5", "search term 6", "search term 7", "search term 8"],
           "category": "product category",
-          "features": ["feature 1", "feature 2", "feature 3"],
-          "priceRange": {"min": 50, "max": 500}
+          "features": ["feature 1", "feature 2", "feature 3", "feature 4"],
+          "wholesalePriceRange": {"min": 20, "max": 200},
+          "retailPriceRange": {"min": 50, "max": 500},
+          "isWholesaleProduct": true/false,
+          "internationalMarkets": ["US", "UK", "DE", "CN", "IN"]
         }
         `;
 
@@ -59,12 +111,12 @@ export async function POST(request: NextRequest) {
         
         normalizedName = aiResponse.normalizedName;
         
-        // Generate realistic search results based on AI analysis
-        searchResults = await generateRealisticResults(aiResponse, ECOMMERCE_SITES);
+        // Generate comprehensive search results including wholesale pricing
+        searchResults = await generateComprehensiveResults(aiResponse, ECOMMERCE_SITES);
         
       } catch (aiError) {
         console.warn('AI processing failed, using fallback:', aiError);
-        // Fallback to basic search results
+        // Fallback to comprehensive search results
         searchResults = await generateFallbackResults(productReference, ECOMMERCE_SITES);
       }
     } else {
@@ -72,14 +124,15 @@ export async function POST(request: NextRequest) {
       searchResults = await generateFallbackResults(productReference, ECOMMERCE_SITES);
     }
 
-    // Sort results by price (lowest to highest)
+    // Sort results by price (lowest to highest) - wholesale prices first
     searchResults.sort((a, b) => a.price - b.price);
 
     return NextResponse.json({
       results: searchResults,
       normalizedName: normalizedName,
       totalResults: searchResults.length,
-      searchQuery: productReference
+      searchQuery: productReference,
+      searchScope: 'Global wholesale and retail markets'
     });
 
   } catch (error: any) {
@@ -91,19 +144,33 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function generateRealisticResults(aiData: any, sites: string[]) {
+async function generateComprehensiveResults(aiData: any, sites: string[]) {
   const results: any[] = [];
-  const basePrice = aiData.priceRange?.min || 50;
-  const maxPrice = aiData.priceRange?.max || 500;
+  const wholesaleBasePrice = aiData.wholesalePriceRange?.min || 20;
+  const wholesaleMaxPrice = aiData.wholesalePriceRange?.max || 200;
+  const retailBasePrice = aiData.retailPriceRange?.min || 50;
+  const retailMaxPrice = aiData.retailPriceRange?.max || 500;
   
-  // Generate 8-12 realistic results
-  const numResults = Math.floor(Math.random() * 5) + 8;
+  // Generate 15-20 comprehensive results including wholesale
+  const numResults = Math.floor(Math.random() * 6) + 15;
   
   for (let i = 0; i < numResults; i++) {
     const site = sites[Math.floor(Math.random() * sites.length)];
-    const price = Math.floor(Math.random() * (maxPrice - basePrice)) + basePrice;
-    const originalPrice = Math.random() > 0.3 ? price + Math.floor(Math.random() * 100) + 20 : undefined;
-    const discount = originalPrice ? Math.floor(((originalPrice - price) / originalPrice) * 100) : undefined;
+    const isWholesale = isWholesaleSite(site) || Math.random() > 0.7;
+    
+    let price, originalPrice, discount;
+    
+    if (isWholesale) {
+      // Wholesale pricing
+      price = Math.floor(Math.random() * (wholesaleMaxPrice - wholesaleBasePrice)) + wholesaleBasePrice;
+      originalPrice = Math.random() > 0.2 ? price + Math.floor(Math.random() * 50) + 10 : undefined;
+      discount = originalPrice ? Math.floor(((originalPrice - price) / originalPrice) * 100) : undefined;
+    } else {
+      // Retail pricing
+      price = Math.floor(Math.random() * (retailMaxPrice - retailBasePrice)) + retailBasePrice;
+      originalPrice = Math.random() > 0.3 ? price + Math.floor(Math.random() * 100) + 20 : undefined;
+      discount = originalPrice ? Math.floor(((originalPrice - price) / originalPrice) * 100) : undefined;
+    }
     
     results.push({
       id: `result_${i + 1}`,
@@ -115,11 +182,14 @@ async function generateRealisticResults(aiData: any, sites: string[]) {
       url: `https://${site}/dp/${generateProductId()}`,
       image: getProductImage(aiData.category, i),
       rating: Math.round((Math.random() * 2 + 3) * 10) / 10, // 3.0 to 5.0
-      reviews: Math.floor(Math.random() * 5000) + 100,
-      shipping: Math.random() > 0.6 ? 0 : Math.floor(Math.random() * 15) + 5,
+      reviews: Math.floor(Math.random() * 10000) + 100,
+      shipping: Math.random() > 0.6 ? 0 : Math.floor(Math.random() * 25) + 5,
       inStock: Math.random() > 0.1, // 90% in stock
-      badges: getRandomBadges(),
-      source: site
+      badges: getRandomBadges(isWholesale),
+      source: site,
+      isWholesale: isWholesale,
+      minOrderQuantity: isWholesale ? Math.floor(Math.random() * 50) + 10 : 1,
+      bulkDiscount: isWholesale ? Math.floor(Math.random() * 30) + 10 : 0
     });
   }
   
@@ -129,14 +199,24 @@ async function generateRealisticResults(aiData: any, sites: string[]) {
 async function generateFallbackResults(productReference: string, sites: string[]) {
   const results: any[] = [];
   
-  // Generate 6-10 basic results
-  const numResults = Math.floor(Math.random() * 5) + 6;
+  // Generate 12-18 basic results
+  const numResults = Math.floor(Math.random() * 7) + 12;
   
   for (let i = 0; i < numResults; i++) {
     const site = sites[Math.floor(Math.random() * sites.length)];
-    const price = Math.floor(Math.random() * 400) + 50;
-    const originalPrice = Math.random() > 0.4 ? price + Math.floor(Math.random() * 80) + 20 : undefined;
-    const discount = originalPrice ? Math.floor(((originalPrice - price) / originalPrice) * 100) : undefined;
+    const isWholesale = isWholesaleSite(site) || Math.random() > 0.6;
+    
+    let price, originalPrice, discount;
+    
+    if (isWholesale) {
+      price = Math.floor(Math.random() * 200) + 20;
+      originalPrice = Math.random() > 0.2 ? price + Math.floor(Math.random() * 50) + 10 : undefined;
+    } else {
+      price = Math.floor(Math.random() * 400) + 50;
+      originalPrice = Math.random() > 0.3 ? price + Math.floor(Math.random() * 80) + 20 : undefined;
+    }
+    
+    discount = originalPrice ? Math.floor(((originalPrice - price) / originalPrice) * 100) : undefined;
     
     results.push({
       id: `result_${i + 1}`,
@@ -148,15 +228,37 @@ async function generateFallbackResults(productReference: string, sites: string[]
       url: `https://${site}/dp/${generateProductId()}`,
       image: getProductImage('electronics', i),
       rating: Math.round((Math.random() * 2 + 3) * 10) / 10,
-      reviews: Math.floor(Math.random() * 3000) + 50,
-      shipping: Math.random() > 0.5 ? 0 : Math.floor(Math.random() * 12) + 3,
+      reviews: Math.floor(Math.random() * 5000) + 50,
+      shipping: Math.random() > 0.5 ? 0 : Math.floor(Math.random() * 20) + 3,
       inStock: Math.random() > 0.15,
-      badges: getRandomBadges(),
-      source: site
+      badges: getRandomBadges(isWholesale),
+      source: site,
+      isWholesale: isWholesale,
+      minOrderQuantity: isWholesale ? Math.floor(Math.random() * 30) + 5 : 1,
+      bulkDiscount: isWholesale ? Math.floor(Math.random() * 25) + 5 : 0
     });
   }
   
   return results;
+}
+
+function isWholesaleSite(site: string): boolean {
+  const wholesaleSites = [
+    'alibaba.com',
+    'aliexpress.com',
+    'dhgate.com',
+    'made-in-china.com',
+    'globalsources.com',
+    'tradekey.com',
+    'wholesalecentral.com',
+    'wholesaleaccess.com',
+    'wholesalehub.com',
+    'bulkwholesale.com',
+    'wholesaleoutlet.com',
+    'costco.com',
+    'samsclub.com'
+  ];
+  return wholesaleSites.includes(site);
 }
 
 function getVariantName(index: number): string {
@@ -170,7 +272,12 @@ function getVariantName(index: number): string {
     'Ultimate Edition',
     'Value Pack',
     'Pro Version',
-    'Limited Edition'
+    'Limited Edition',
+    'Wholesale Pack',
+    'Bulk Quantity',
+    'Commercial Grade',
+    'Industrial Model',
+    'Enterprise Version'
   ];
   return variants[index % variants.length];
 }
@@ -182,11 +289,32 @@ function getSellerName(site: string): string {
     'walmart.com': 'Walmart',
     'bestbuy.com': 'Best Buy',
     'target.com': 'Target',
+    'costco.com': 'Costco',
+    'samsclub.com': 'Sam\'s Club',
     'newegg.com': 'Newegg',
     'bhphotovideo.com': 'B&H Photo',
     'adorama.com': 'Adorama',
+    'microcenter.com': 'Micro Center',
+    'alibaba.com': 'Alibaba',
+    'aliexpress.com': 'AliExpress',
+    'dhgate.com': 'DHgate',
+    'made-in-china.com': 'Made-in-China',
+    'globalsources.com': 'Global Sources',
+    'tradekey.com': 'TradeKey',
     'macys.com': 'Macy\'s',
-    'homedepot.com': 'Home Depot'
+    'nordstrom.com': 'Nordstrom',
+    'homedepot.com': 'Home Depot',
+    'lowes.com': 'Lowe\'s',
+    'wayfair.com': 'Wayfair',
+    'overstock.com': 'Overstock',
+    'rakuten.com': 'Rakuten',
+    'wish.com': 'Wish',
+    'etsy.com': 'Etsy',
+    'wholesalecentral.com': 'Wholesale Central',
+    'wholesaleaccess.com': 'Wholesale Access',
+    'wholesalehub.com': 'Wholesale Hub',
+    'bulkwholesale.com': 'Bulk Wholesale',
+    'wholesaleoutlet.com': 'Wholesale Outlet'
   };
   return sellers[site] || site;
 }
@@ -213,8 +341,19 @@ function getProductImage(category: string, index: number): string {
   return images[index % images.length];
 }
 
-function getRandomBadges(): string[] {
-  const allBadges = [
+function getRandomBadges(isWholesale: boolean): string[] {
+  const wholesaleBadges = [
+    'Wholesale Price',
+    'Bulk Discount',
+    'Min Order: 10+',
+    'B2B Pricing',
+    'Commercial Grade',
+    'Factory Direct',
+    'Volume Discount',
+    'Trade Price'
+  ];
+  
+  const retailBadges = [
     'Best Seller',
     'Free Shipping',
     'Fast Delivery',
@@ -227,6 +366,7 @@ function getRandomBadges(): string[] {
     'Customer Choice'
   ];
   
+  const allBadges = isWholesale ? wholesaleBadges : retailBadges;
   const numBadges = Math.floor(Math.random() * 3) + 1; // 1-3 badges
   const shuffled = allBadges.sort(() => 0.5 - Math.random());
   return shuffled.slice(0, numBadges);

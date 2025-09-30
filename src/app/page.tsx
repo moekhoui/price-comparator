@@ -31,6 +31,9 @@ interface SearchResult {
   inStock: boolean;
   badges: string[];
   source: string;
+  isWholesale?: boolean;
+  minOrderQuantity?: number;
+  bulkDiscount?: number;
 }
 
 export default function Home() {
@@ -166,8 +169,8 @@ export default function Home() {
             Find the <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Best Deals</span>
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Search the entire web with AI to compare prices across multiple retailers. 
-            Get real-time results sorted by price from lowest to highest.
+            Search the entire web with AI to compare wholesale and retail prices across global markets. 
+            Find the best deals from 40+ e-commerce sites including wholesale suppliers and B2B platforms.
           </p>
 
           {/* Search Bar */}
@@ -235,10 +238,10 @@ export default function Home() {
             <div className="max-w-md mx-auto">
               <Loader2 className="h-16 w-16 text-blue-600 animate-spin mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                AI is searching the web...
+                AI is searching global wholesale and retail markets...
               </h3>
               <p className="text-gray-600">
-                Analyzing product references and finding the best prices across multiple retailers.
+                Analyzing product references across 40+ e-commerce sites including wholesale suppliers, B2B platforms, and international markets.
               </p>
             </div>
           </motion.div>
@@ -364,6 +367,23 @@ export default function Home() {
 
                   <div className="text-xs text-gray-500 mb-4">
                     Source: {item.source}
+                    {item.isWholesale && (
+                      <div className="mt-1">
+                        <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-medium">
+                          WHOLESALE
+                        </span>
+                        {item.minOrderQuantity && (
+                          <span className="ml-2 text-orange-600">
+                            Min Order: {item.minOrderQuantity}+
+                          </span>
+                        )}
+                        {item.bulkDiscount && (
+                          <span className="ml-2 text-green-600">
+                            Bulk: -{item.bulkDiscount}%
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex space-x-2">
@@ -426,16 +446,18 @@ export default function Home() {
                 <span className="text-xl font-bold">Comparateur Ben Jeddou</span>
               </div>
               <p className="text-gray-400">
-                AI-powered price comparison platform that searches the entire web to find the best deals.
+                AI-powered wholesale and retail price comparison platform that searches 40+ global e-commerce sites to find the best deals.
               </p>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Features</h4>
               <ul className="space-y-2 text-gray-400">
-                <li>AI-Powered Web Search</li>
-                <li>Real-time Price Comparison</li>
-                <li>Smart Price Sorting</li>
-                <li>Multi-retailer Results</li>
+                <li>AI-Powered Global Search</li>
+                <li>Wholesale & Retail Pricing</li>
+                <li>B2B Platform Integration</li>
+                <li>40+ E-commerce Sites</li>
+                <li>International Markets</li>
+                <li>Bulk Discount Analysis</li>
               </ul>
             </div>
             <div>

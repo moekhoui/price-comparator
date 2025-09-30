@@ -2,6 +2,7 @@
 const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['mysql2'],
+    staticPageGenerationTimeout: 1000,
   },
   images: {
     domains: [
