@@ -1,19 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  Search, 
-  TrendingUp, 
-  Bookmark, 
-  History, 
-  Star, 
-  ShoppingCart, 
-  ExternalLink,
-  Heart,
-  Loader2,
-  AlertCircle
-} from 'lucide-react';
+import { Search, TrendingUp, Star, ShoppingCart, ExternalLink, Heart, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface SearchResult {
@@ -41,7 +29,6 @@ export default function Home() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [bookmarkedItems, setBookmarkedItems] = useState<Set<string>>(new Set());
-  const [searchError, setSearchError] = useState<string | null>(null);
 
   const handleSearch = async (query: string) => {
     if (!query.trim()) {
@@ -50,11 +37,10 @@ export default function Home() {
     }
     
     setIsLoading(true);
-    setSearchError(null);
     setSearchResults([]);
     
     try {
-      toast.loading('🔍 Searching global markets with AI...', { duration: 2000 });
+      toast.loading('Searching global markets...', { duration: 2000 });
       
       const response = await fetch('/api/search', {
         method: 'POST',
@@ -74,14 +60,12 @@ export default function Home() {
       if (data.results && data.results.length > 0) {
         const sortedResults = data.results.sort((a: SearchResult, b: SearchResult) => a.price - b.price);
         setSearchResults(sortedResults);
-        toast.success(`🎉 Found ${sortedResults.length} products for "${data.normalizedName}"`);
+        toast.success(`Found ${sortedResults.length} products!`);
       } else {
-        setSearchError(`No products found for "${query}". Try a different search term.`);
         toast.error('No products found');
       }
     } catch (error: any) {
       console.error('Search error:', error);
-      setSearchError(`Search failed: ${error.message}`);
       toast.error(`Search failed: ${error.message}`);
     } finally {
       setIsLoading(false);
@@ -119,35 +103,28 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50">
+    <div className="min-h-screen bg-orange-50">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-orange-200">
+      <header className="bg-white shadow-sm border-b border-orange-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <motion.div 
-              className="flex items-center space-x-2"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="p-2 bg-gradient-to-r from-orange-500 to-amber-500 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <div className="p-2 bg-orange-500 rounded-lg">
                 <TrendingUp className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold text-orange-600">
                   Comparateur Ben Jeddou
                 </h1>
-                <p className="text-xs text-orange-600">AI-Powered Price Comparison</p>
+                <p className="text-xs text-orange-500">AI-Powered Price Comparison</p>
               </div>
-            </motion.div>
+            </div>
 
             <nav className="hidden md:flex items-center space-x-6">
-              <a href="/admin" className="flex items-center text-gray-600 hover:text-orange-600 transition-colors">
-                <Bookmark className="h-5 w-5 mr-1" />
+              <a href="/admin" className="text-gray-600 hover:text-orange-600 transition-colors">
                 Admin
               </a>
-              <a href="/api/health" className="flex items-center text-gray-600 hover:text-orange-600 transition-colors">
-                <History className="h-5 w-5 mr-1" />
+              <a href="/api/health" className="text-gray-600 hover:text-orange-600 transition-colors">
                 Health
               </a>
             </nav>
@@ -158,18 +135,12 @@ export default function Home() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
-        <motion.div 
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
+        <div className="text-center mb-12">
           <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
-            Find the <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Best Deals</span>
+            Find the <span className="text-orange-500">Best Deals</span>
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Search the entire web with AI to compare wholesale and retail prices across global markets. 
-            Find the best deals from 40+ e-commerce sites including wholesale suppliers and B2B platforms.
+            Search the entire web with AI to compare wholesale and retail prices across global markets.
           </p>
 
           {/* Search Bar */}
@@ -180,7 +151,7 @@ export default function Home() {
               </div>
               <input
                 type="text"
-                placeholder="Enter product name, model, or reference (e.g., iPhone 15, Samsung Galaxy S24, MacBook Pro M3)..."
+                placeholder="Enter product name, model, or reference..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
@@ -191,7 +162,7 @@ export default function Home() {
                 <button
                   onClick={() => handleSearch(searchQuery)}
                   disabled={isLoading || !searchQuery.trim()}
-                  className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-2 rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
                 >
                   {isLoading ? (
                     <>
@@ -201,7 +172,7 @@ export default function Home() {
                   ) : (
                     <>
                       <Search className="h-5 w-5" />
-                      Search Web
+                      Search
                     </>
                   )}
                 </button>
@@ -224,80 +195,40 @@ export default function Home() {
               ))}
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Loading State */}
         {isLoading && (
-          <motion.div 
-            className="text-center py-12"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div className="text-center py-12">
             <div className="max-w-md mx-auto">
               <Loader2 className="h-16 w-16 text-orange-500 animate-spin mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 AI is searching global markets...
               </h3>
               <p className="text-gray-600">
-                Analyzing product references across 40+ e-commerce sites including wholesale suppliers, B2B platforms, and international markets.
+                Analyzing product references across 40+ e-commerce sites.
               </p>
             </div>
-          </motion.div>
-        )}
-
-        {/* Error State */}
-        {searchError && (
-          <motion.div 
-            className="text-center py-12"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="max-w-md mx-auto">
-              <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Search Failed
-              </h3>
-              <p className="text-gray-600 mb-4">{searchError}</p>
-              <button
-                onClick={() => {
-                  setSearchError(null);
-                  setSearchResults([]);
-                }}
-                className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-              >
-                Try Again
-              </button>
-            </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Search Results */}
         {searchResults.length > 0 && (
-          <motion.div 
-            className="space-y-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
+          <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-2xl font-bold text-gray-900">
-                Search Results ({searchResults.length}) - Sorted by Price (Lowest to Highest)
+                Search Results ({searchResults.length}) - Sorted by Price
               </h3>
               <div className="text-sm text-orange-600">
-                💡 Results are automatically sorted by price
+                💡 Results sorted from lowest to highest
               </div>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {searchResults.map((item, index) => (
-                <motion.div
+                <div
                   key={item.id}
                   className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
                   <div className="relative">
                     <img
@@ -321,14 +252,14 @@ export default function Home() {
                     {item.badges.map((badge, badgeIndex) => (
                       <span
                         key={badgeIndex}
-                        className="absolute top-2 left-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white px-2 py-1 rounded-full text-xs font-medium"
+                        className="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium"
                       >
                         {badge}
                       </span>
                     ))}
                   </div>
 
-                  <h4 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                  <h4 className="font-semibold text-gray-900 mb-2">
                     {item.name}
                   </h4>
 
@@ -390,7 +321,7 @@ export default function Home() {
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-4 py-2 rounded-lg text-center font-medium transition-colors flex items-center justify-center"
+                      className="flex-1 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-center font-medium transition-colors flex items-center justify-center"
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
                       Buy Now
@@ -406,32 +337,27 @@ export default function Home() {
                       <span className="text-red-500 text-sm font-medium">Out of Stock</span>
                     </div>
                   )}
-                </motion.div>
+                </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Empty State */}
-        {searchResults.length === 0 && !isLoading && !searchError && (
-          <motion.div 
-            className="text-center py-12"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-          >
+        {searchResults.length === 0 && !isLoading && (
+          <div className="text-center py-12">
             <div className="max-w-md mx-auto">
-              <div className="w-24 h-24 bg-gradient-to-r from-orange-100 to-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Search className="h-12 w-12 text-orange-500" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 Start Your AI-Powered Search
               </h3>
               <p className="text-gray-600 mb-6">
-                Enter a product name, model, or reference to search the entire web and find the best wholesale and retail prices.
+                Enter a product name, model, or reference to search the entire web and find the best prices.
               </p>
             </div>
-          </motion.div>
+          </div>
         )}
       </main>
 
@@ -445,7 +371,7 @@ export default function Home() {
                 <span className="text-xl font-bold">Comparateur Ben Jeddou</span>
               </div>
               <p className="text-gray-400">
-                AI-powered wholesale and retail price comparison platform that searches 40+ global e-commerce sites to find the best deals.
+                AI-powered wholesale and retail price comparison platform.
               </p>
             </div>
             <div>
@@ -455,8 +381,6 @@ export default function Home() {
                 <li>Wholesale & Retail Pricing</li>
                 <li>B2B Platform Integration</li>
                 <li>40+ E-commerce Sites</li>
-                <li>International Markets</li>
-                <li>Bulk Discount Analysis</li>
               </ul>
             </div>
             <div>
