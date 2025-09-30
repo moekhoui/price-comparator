@@ -174,7 +174,7 @@ async function generateComprehensiveResults(aiData: any, sites: string[]) {
     
     results.push({
       id: `result_${i + 1}`,
-      name: `${aiData.normalizedName} - ${getVariantName(i)}`,
+      name: `${aiData.normalizedName} ${getVariantName(i)}`,
       price: price,
       originalPrice: originalPrice,
       discount: discount,
@@ -220,7 +220,7 @@ async function generateFallbackResults(productReference: string, sites: string[]
     
     results.push({
       id: `result_${i + 1}`,
-      name: `${productReference} - ${getVariantName(i)}`,
+      name: `${productReference} ${getVariantName(i)}`,
       price: price,
       originalPrice: originalPrice,
       discount: discount,
@@ -263,21 +263,36 @@ function isWholesaleSite(site: string): boolean {
 
 function getVariantName(index: number): string {
   const variants = [
-    'Premium Edition',
-    'Standard Version',
-    'Professional Model',
-    'Deluxe Package',
-    'Basic Model',
-    'Advanced Version',
-    'Ultimate Edition',
-    'Value Pack',
-    'Pro Version',
-    'Limited Edition',
-    'Wholesale Pack',
-    'Bulk Quantity',
-    'Commercial Grade',
-    'Industrial Model',
-    'Enterprise Version'
+    '128GB Storage',
+    '256GB Storage', 
+    '512GB Storage',
+    '1TB Storage',
+    'Black Color',
+    'White Color',
+    'Silver Color',
+    'Gold Color',
+    'Blue Color',
+    'Red Color',
+    'Large Size',
+    'Medium Size',
+    'Small Size',
+    'XL Size',
+    'XXL Size',
+    'Wireless Version',
+    'Bluetooth Enabled',
+    'Water Resistant',
+    'Fast Charging',
+    'Long Battery Life',
+    'High Resolution',
+    '4K Display',
+    'HD Quality',
+    'Professional Grade',
+    'Commercial Use',
+    'Bulk Pack (10 units)',
+    'Bulk Pack (25 units)',
+    'Bulk Pack (50 units)',
+    'Wholesale Lot',
+    'Factory Direct'
   ];
   return variants[index % variants.length];
 }
@@ -320,25 +335,53 @@ function getSellerName(site: string): string {
 }
 
 function getProductImage(category: string, index: number): string {
-  const categories: { [key: string]: string[] } = {
-    'electronics': [
-      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=200&fit=crop',
-      'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=300&h=200&fit=crop',
-      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=200&fit=crop',
-      'https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=300&h=200&fit=crop'
-    ],
-    'clothing': [
-      'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=200&fit=crop',
-      'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=300&h=200&fit=crop'
-    ],
-    'home': [
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop',
-      'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=200&fit=crop'
-    ]
-  };
+  // Use a more comprehensive set of real product images
+  const allImages = [
+    // Electronics & Tech
+    'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=300&fit=crop&auto=format',
+    
+    // Clothing & Fashion
+    'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=300&fit=crop&auto=format',
+    
+    // Home & Furniture
+    'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop&auto=format',
+    
+    // Sports & Outdoor
+    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&auto=format',
+    
+    // Beauty & Health
+    'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&h=300&fit=crop&auto=format',
+    
+    // Books & Media
+    'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop&auto=format',
+    
+    // Tools & Hardware
+    'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&auto=format',
+    
+    // Automotive
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400&h=300&fit=crop&auto=format'
+  ];
   
-  const images = categories[category] || categories['electronics'];
-  return images[index % images.length];
+  return allImages[index % allImages.length];
 }
 
 function getRandomBadges(isWholesale: boolean): string[] {

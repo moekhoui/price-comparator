@@ -333,13 +333,9 @@ export default function Home() {
                       rel="noopener noreferrer"
                       className="flex-1 bg-orange-gradient hover-orange text-white px-4 py-3 rounded-xl text-center font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
                     >
-                      <ShoppingCart className="h-4 w-4" />
-                      Buy Now
-                      <ExternalLink className="h-3 w-3" />
+                      <ExternalLink className="h-4 w-4" />
+                      View on {item.seller}
                     </a>
-                    <button className="bg-white border-2 border-orange-200 hover:border-orange-300 text-orange-700 px-4 py-3 rounded-xl font-semibold transition-all">
-                      Compare
-                    </button>
                   </div>
 
                   {!item.inStock && (
